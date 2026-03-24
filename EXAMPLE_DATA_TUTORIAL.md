@@ -70,15 +70,15 @@ Rscript R/fastNGSadmixPCA.R -likes "$GL" -qopt results/yriFrenchHan_depth05.qopt
 
 Generated example outputs from the BEDMatrix-backed test run in this repo:
 
-- Admixture barplot: [tutorial_figures/yriFrenchHan_depth05_bedmatrix_admixBarplot.png](/home/albrecht/github/fastNGSadmix/tutorial_figures/yriFrenchHan_depth05_bedmatrix_admixBarplot.png)
-- PCA plot PDF: [tutorial_figures/yriFrenchHan_depth05_bedmatrix_PCAplot.pdf](/home/albrecht/github/fastNGSadmix/tutorial_figures/yriFrenchHan_depth05_bedmatrix_PCAplot.pdf)
-- PCA plot PNG: [tutorial_figures/yriFrenchHan_depth05_bedmatrix_PCAplot.png](/home/albrecht/github/fastNGSadmix/tutorial_figures/yriFrenchHan_depth05_bedmatrix_PCAplot.png)
-- Covariance matrix: [results/yriFrenchHan_depth05_bedmatrix_covar.txt](/home/albrecht/github/fastNGSadmix/results/yriFrenchHan_depth05_bedmatrix_covar.txt)
-- Eigenvectors: [results/yriFrenchHan_depth05_bedmatrix_eigenvecs.txt](/home/albrecht/github/fastNGSadmix/results/yriFrenchHan_depth05_bedmatrix_eigenvecs.txt)
+- Admixture barplot: [tutorial_figures/yriFrenchHan_depth05_bedmatrix_admixBarplot.png](tutorial_figures/yriFrenchHan_depth05_bedmatrix_admixBarplot.png)
+- PCA plot PDF: [tutorial_figures/yriFrenchHan_depth05_bedmatrix_PCAplot.pdf](tutorial_figures/yriFrenchHan_depth05_bedmatrix_PCAplot.pdf)
+- PCA plot PNG: [tutorial_figures/yriFrenchHan_depth05_bedmatrix_PCAplot.png](tutorial_figures/yriFrenchHan_depth05_bedmatrix_PCAplot.png)
+- Covariance matrix: [results/yriFrenchHan_depth05_bedmatrix_covar.txt](results/yriFrenchHan_depth05_bedmatrix_covar.txt)
+- Eigenvectors: [results/yriFrenchHan_depth05_bedmatrix_eigenvecs.txt](results/yriFrenchHan_depth05_bedmatrix_eigenvecs.txt)
 
-![Admixture barplot for yriFrenchHan_depth05](/home/albrecht/github/fastNGSadmix/tutorial_figures/yriFrenchHan_depth05_bedmatrix_admixBarplot.png)
+![Admixture barplot for yriFrenchHan_depth05](tutorial_figures/yriFrenchHan_depth05_bedmatrix_admixBarplot.png)
 
-![PCA plot for yriFrenchHan_depth05](/home/albrecht/github/fastNGSadmix/tutorial_figures/yriFrenchHan_depth05_bedmatrix_PCAplot.png)
+![PCA plot for yriFrenchHan_depth05](tutorial_figures/yriFrenchHan_depth05_bedmatrix_PCAplot.png)
 
 ## 4. Run the PLINK example
 
@@ -107,15 +107,15 @@ Rscript R/fastNGSadmixPCA.R -plinkFile "$PLINKFILE" -qopt results/NA20502_TSI.qo
 
 Generated example outputs from the BEDMatrix-backed test run in this repo:
 
-- Admixture barplot: [tutorial_figures/NA20502_TSI_bedmatrix_admixBarplot.png](/home/albrecht/github/fastNGSadmix/tutorial_figures/NA20502_TSI_bedmatrix_admixBarplot.png)
-- PCA plot PDF: [tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.pdf](/home/albrecht/github/fastNGSadmix/tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.pdf)
-- PCA plot PNG: [tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.png](/home/albrecht/github/fastNGSadmix/tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.png)
-- Covariance matrix: [results/NA20502_TSI_bedmatrix_covar.txt](/home/albrecht/github/fastNGSadmix/results/NA20502_TSI_bedmatrix_covar.txt)
-- Eigenvectors: [results/NA20502_TSI_bedmatrix_eigenvecs.txt](/home/albrecht/github/fastNGSadmix/results/NA20502_TSI_bedmatrix_eigenvecs.txt)
+- Admixture barplot: [tutorial_figures/NA20502_TSI_bedmatrix_admixBarplot.png](tutorial_figures/NA20502_TSI_bedmatrix_admixBarplot.png)
+- PCA plot PDF: [tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.pdf](tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.pdf)
+- PCA plot PNG: [tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.png](tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.png)
+- Covariance matrix: [results/NA20502_TSI_bedmatrix_covar.txt](results/NA20502_TSI_bedmatrix_covar.txt)
+- Eigenvectors: [results/NA20502_TSI_bedmatrix_eigenvecs.txt](results/NA20502_TSI_bedmatrix_eigenvecs.txt)
 
-![Admixture barplot for NA20502_TSI](/home/albrecht/github/fastNGSadmix/tutorial_figures/NA20502_TSI_bedmatrix_admixBarplot.png)
+![Admixture barplot for NA20502_TSI](tutorial_figures/NA20502_TSI_bedmatrix_admixBarplot.png)
 
-![PCA plot for NA20502_TSI](/home/albrecht/github/fastNGSadmix/tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.png)
+![PCA plot for NA20502_TSI](tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.png)
 
 ## 5. Optional: 1000 Genomes reference panel example
 

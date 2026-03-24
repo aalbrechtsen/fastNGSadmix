@@ -44,4 +44,4 @@ contains the larger 1000 Genomes reference panel used in the BAM-based
 example.
 
 For a runnable walkthrough using the hosted example data, see
-[EXAMPLE_DATA_TUTORIAL.md](/home/albrecht/github/fastNGSadmix/EXAMPLE_DATA_TUTORIAL.md).
+[EXAMPLE_DATA_TUTORIAL.md](EXAMPLE_DATA_TUTORIAL.md).
