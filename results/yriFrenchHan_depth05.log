@@ -1,0 +1,33 @@
+Input: -likes example/yriFrenchHan_depth05.beagle.gz -plink (null) -Nname data/nInd_humanOrigins_7worldPops.txt -fname data/refPanel_humanOrigins_7worldPops.txt -out yriFrenchHan_depth05 -whichPops French,Han,Yoruba
+Setup: -seed 1774339045 -method 1
+Ploidy of 2 has been chosen
+
+The accelerated EM has been chosen
+The adjusted method has been chosen
+Convergence: -maxIter 2000 -tol 0.00000010
+The following number of bootstraps have been chosen: 0
+Input has this many sites without missing data 95913
+Ref has this many sites 442769
+This many sites in ref are either not-valid-number or below maf in any of the chosen pops 0
+Overlap: of 95913 sites between input and ref
+
+nPop=3
+
+Opening nInd file: data/refPanel_humanOrigins_7worldPops.txt with nPop=3
+Chosen pop French
+N = 25.000000
+Chosen pop Han
+N = 33.000000
+Chosen pop Yoruba
+N = 70.000000
+
+This many iterations 67 for run 0
+
+best like -97538.373761 after 0!
+Q 0.695857 Q 0.235122 Q 0.069021  after 0!
+
+Estimated  Q = 0.695857 0.235122 0.069021 
+best like -97538.373761 after 0 runs!
+FIRST row of .qopt file is BEST estimated Q, rest are nBoot bootstrapping Qs
+	[ALL done] cpu-time used =  0.86 sec
+	[ALL done] walltime used =  1.00 sec
