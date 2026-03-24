@@ -1,0 +1,14 @@
+Machine name: x86_64
+Node name: cosmo
+Operating system release: 6.17.0-19-generic
+Operating system version: #19~24.04.2-Ubuntu SMP PREEMPT_DYNAMIC Fri Mar  6 23:08:46 UTC 2
+Operating system name: Linux
+ PCAone (v0.6.0)    https://github.com/Zilong-Li/PCAone
+Options in effect:
+./PCAone -b results/pcaone_harmonized/sample --USV results/pcaone_harmonized/ref_pcaone --project 2 -o results/pcaone_harmonized/sample_pcaone  
+[24/03/2026-16:17:04] program started 
+[24/03/2026-16:17:04] start parsing PLINK format 
+[24/03/2026-16:17:04] N (# samples):  1, M (# SNPs): 441702
+[24/03/2026-16:17:04] read frequency of SNPs from the extended bim (.mbim) 
+[24/03/2026-16:17:04] run projection 
+[24/03/2026-16:17:04] done reading all data 
