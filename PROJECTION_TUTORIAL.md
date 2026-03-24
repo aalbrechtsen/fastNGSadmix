@@ -102,33 +102,7 @@ is consistent with the `.qopt` estimate.
 
 ## 6. PCAone projection
 
-The raw example prefixes are not directly compatible for `PCAone` projection:
-
-- reference sites: `442769`
-- projected sample sites: `441702`
-
-So the first step is to harmonize both PLINK prefixes to the same site set and
-allele orientation.
-
-### 6.1 Harmonize the PLINK prefixes
-
-```bash
-python3 scripts/harmonize_plink_for_pcaone.py \
-  --ref data/humanOrigins_7worldPops \
-  --sample example/NA20502_TSI \
-  --outdir results/pcaone_harmonized
-```
-
-This writes:
-
-- `results/pcaone_harmonized/ref.bed`
-- `results/pcaone_harmonized/ref.bim`
-- `results/pcaone_harmonized/ref.fam`
-- `results/pcaone_harmonized/sample.bed`
-- `results/pcaone_harmonized/sample.bim`
-- `results/pcaone_harmonized/sample.fam`
-
-### 6.2 Download PCAone if needed
+### 6.1 Download PCAone if needed
 
 ```bash
 pkg=https://github.com/Zilong-Li/PCAone/releases/latest/download/PCAone-Linux.zip
@@ -137,40 +111,60 @@ unzip -o PCAone-Linux.zip
 chmod +x PCAone
 ```
 
-### 6.3 Run PCAone on the harmonized reference
+### 6.2 Run PCAone on the reference panel
 
 ```bash
-./PCAone -b results/pcaone_harmonized/ref -k 10 --printv -o results/pcaone_harmonized/ref_pcaone
+./PCAone -b data/humanOrigins_7worldPops -k 10 --printv -o results/pcaone/ref
 ```
 
 This writes:
 
-- `results/pcaone_harmonized/ref_pcaone.eigvals`
-- `results/pcaone_harmonized/ref_pcaone.eigvecs`
-- `results/pcaone_harmonized/ref_pcaone.eigvecs2`
-- `results/pcaone_harmonized/ref_pcaone.loadings`
-- `results/pcaone_harmonized/ref_pcaone.mbim`
-- `results/pcaone_harmonized/ref_pcaone.sigvals`
+- `results/pcaone/ref.eigvals`
+- `results/pcaone/ref.eigvecs`
+- `results/pcaone/ref.eigvecs2`
+- `results/pcaone/ref.loadings`
+- `results/pcaone/ref.mbim`
+- `results/pcaone/ref.sigvals`
 
-### 6.4 Compute and plot the projected sample from the PCAone reference decomposition
-
-`PCAone` currently crashes on this single-sample projection in this environment,
-even after harmonization, so the projected coordinates are computed from the
-saved `PCAone` loadings and singular values and then plotted together with the
-reference PCs.
+### 6.3 Project `NA20502_TSI` onto the PCAone reference PCs
 
 ```bash
-Rscript scripts/plot_pcaone_projection.R \
-  results/pcaone_harmonized/sample \
-  results/pcaone_harmonized/ref_pcaone \
+./PCAone -b example/NA20502_TSI \
+  --USV results/pcaone/ref \
+  --project 2 \
+  -o results/pcaone/NA20502_TSI
+```
+
+This now works directly on the example files and reports the overlap between the
+sample and the reference `.mbim`:
+
+- projection overlap: `441702`
+- flipped sites: `51338`
+- skipped sites: `0`
+
+This writes:
+
+- `results/pcaone/NA20502_TSI.eigvecs`
+- `results/pcaone/NA20502_TSI.eigvals`
+- `results/pcaone/NA20502_TSI.sigvals`
+- `results/pcaone/NA20502_TSI.log`
+
+### 6.4 Plot the PCAone projection
+
+The projected sample coordinates are stored in `results/pcaone/NA20502_TSI.eigvecs`.
+To visualize the projected sample together with the reference PCs:
+
+```bash
+Rscript scripts/plot_pcaone_direct_projection.R \
+  results/pcaone/ref.eigvecs2 \
+  results/pcaone/NA20502_TSI.eigvecs \
   tutorial_figures/NA20502_TSI_pcaone_projection.png \
-  results/pcaone_harmonized/sample_pcaone_projection.tsv
+  NA20502_TSI
 ```
 
 This writes:
 
 - `tutorial_figures/NA20502_TSI_pcaone_projection.png`
-- `results/pcaone_harmonized/sample_pcaone_projection.tsv`
 
 Embedded PCAone projection plot:
 
