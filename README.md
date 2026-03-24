@@ -45,3 +45,6 @@ example.
 
 For a runnable walkthrough using the hosted example data, see
 [EXAMPLE_DATA_TUTORIAL.md](EXAMPLE_DATA_TUTORIAL.md).
+
+For a projection-focused walkthrough using the example PLINK sample and the
+reference panel, see [PROJECTION_TUTORIAL.md](PROJECTION_TUTORIAL.md).
