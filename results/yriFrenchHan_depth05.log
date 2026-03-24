@@ -1,5 +1,5 @@
-Input: -likes example/yriFrenchHan_depth05.beagle.gz -plink (null) -Nname data/nInd_humanOrigins_7worldPops.txt -fname data/refPanel_humanOrigins_7worldPops.txt -out yriFrenchHan_depth05 -whichPops French,Han,Yoruba
-Setup: -seed 1774339045 -method 1
+Input: -likes example/yriFrenchHan_depth05.beagle.gz -plink (null) -Nname data/nInd_humanOrigins_7worldPops.txt -fname data/refPanel_humanOrigins_7worldPops.txt -out results/yriFrenchHan_depth05 -whichPops French,Han,Yoruba
+Setup: -seed 1774360091 -method 1
 Ploidy of 2 has been chosen
 
 The accelerated EM has been chosen
@@ -21,13 +21,13 @@ N = 33.000000
 Chosen pop Yoruba
 N = 70.000000
 
-This many iterations 67 for run 0
+This many iterations 42 for run 0
 
-best like -97538.373761 after 0!
-Q 0.695857 Q 0.235122 Q 0.069021  after 0!
+best like -97538.374384 after 0!
+Q 0.695856 Q 0.235121 Q 0.069023  after 0!
 
-Estimated  Q = 0.695857 0.235122 0.069021 
-best like -97538.373761 after 0 runs!
+Estimated  Q = 0.695856 0.235121 0.069023 
+best like -97538.374384 after 0 runs!
 FIRST row of .qopt file is BEST estimated Q, rest are nBoot bootstrapping Qs
-	[ALL done] cpu-time used =  0.86 sec
-	[ALL done] walltime used =  1.00 sec
+	[ALL done] cpu-time used =  0.59 sec
+	[ALL done] walltime used =  0.00 sec

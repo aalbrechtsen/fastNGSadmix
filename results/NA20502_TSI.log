@@ -1,5 +1,5 @@
-Input: -likes (null) -plink example/NA20502_TSI -Nname data/nInd_humanOrigins_7worldPops.txt -fname data/refPanel_humanOrigins_7worldPops.txt -out NA20502_TSI -whichPops French,Han,Yoruba
-Setup: -seed 1774339046 -method 1
+Input: -likes (null) -plink example/NA20502_TSI -Nname data/nInd_humanOrigins_7worldPops.txt -fname data/refPanel_humanOrigins_7worldPops.txt -out results/NA20502_TSI -whichPops French,Han,Yoruba
+Setup: -seed 1774360092 -method 1
 Ploidy of 2 has been chosen
 
 The accelerated EM has been chosen
@@ -21,13 +21,13 @@ N = 33.000000
 Chosen pop Yoruba
 N = 70.000000
 
-This many iterations 37 for run 0
+This many iterations 24 for run 0
 
-best like -304265.189732 after 0!
+best like -304267.935981 after 0!
 Q 0.999980 Q 0.000010 Q 0.000010  after 0!
 
 Estimated  Q = 0.999980 0.000010 0.000010 
-best like -304265.189732 after 0 runs!
+best like -304267.935981 after 0 runs!
 FIRST row of .qopt file is BEST estimated Q, rest are nBoot bootstrapping Qs
-	[ALL done] cpu-time used =  2.29 sec
-	[ALL done] walltime used =  2.00 sec
+	[ALL done] cpu-time used =  1.56 sec
+	[ALL done] walltime used =  1.00 sec

@@ -193,6 +193,8 @@ if(!all(c(saveCovar,ngsTools,onlyPrior,overlapRef,doPlots,withChr)%in%c("0","1")
     stop()        
 }
 
+cat("Reference populations used:", paste(refpops, collapse = ", "), "\n")
+
 pdf(NULL)
 ccol <- c("darkgreen","darkorange","goldenrod2","#A6761D","darkred","lightgreen","darkblue","lightblue")
 grDevices::palette(ccol)
@@ -230,6 +232,7 @@ generateBarplot<-function(admix,sorting,out){
         par(xpd=T)
         legend("topright",inset=c(0.0,-0.2),legend=cols[ cols$pop%in%colnames(admix),"pop"],fill=cols[ cols$pop%in%colnames(admix),"col"],cex=1.5)
         if(dev.cur() > 1) garbage<-grDevices::dev.off()
+        return(paste(out,"_","quantile_","admixBarplot.png",sep=""))
     } else{
         
         bitmap(paste(out,"_admixBarplot.png",sep=""),res=300)
@@ -238,6 +241,7 @@ generateBarplot<-function(admix,sorting,out){
         par(xpd=T)
         legend("topright",inset=c(0.0,-0.2),legend=cols[ cols$pop%in%colnames(admix),"pop"],fill=cols[ cols$pop%in%colnames(admix),"col"],cex=1.5)
         if(dev.cur() > 1) garbage<-grDevices::dev.off()
+        return(paste(out,"_admixBarplot.png",sep=""))
     }
 }
 
@@ -248,9 +252,11 @@ filterSites<-function(pl,likes=NULL,plinkFile=NULL,refpops,out,ref){
         plInput<-read_plink_bedmatrix(plinkFile)
         GL.raw<-cbind(paste(plInput$map$chromosome,plInput$map$position,sep="_"),plInput$map$allele.2,plInput$map$allele.1,0,0,0)
         plink_dosage <- as.numeric(to_numeric_matrix(plInput$genotypes[1,,drop=FALSE]))
-        GL.raw[ which(plink_dosage==0),4]<-1
+        ## BEDMatrix follows the PLINK .bed coding used by the C++ reader:
+        ## dosage is the count of allele2, so 0/1/2 maps to beagle cols 6/5/4.
+        GL.raw[ which(plink_dosage==0),6]<-1
         GL.raw[ which(plink_dosage==1),5]<-1
-        GL.raw[ which(plink_dosage==2),6]<-1
+        GL.raw[ which(plink_dosage==2),4]<-1
         GL.raw<-GL.raw[ which(!is.na(plink_dosage)),]
         GL.raw2<-as.data.frame(GL.raw,stringsAsFactors=F)
         colnames(GL.raw2)<-c("marker", "allele1", "allele2", "Ind0", "Ind0.1", "Ind0.2")
@@ -422,6 +428,9 @@ estimateAdmixPCA<-function(admix,refpops,out,genoFilter,flip,GL.raw2,popFreqs,X,
 }
 
 PCAplotV2 = function(cova,ind,admix,out,PCs,onlyTables=F) {
+    if(length(PCs)!=2){
+        stop("Exactly two principal components must be supplied in PCs")
+    }
     ## eigen decomposition of covariance matrix for PCA
     E<-eigen(cova)
     ## writes out eigenvectors and values
@@ -431,23 +440,25 @@ PCAplotV2 = function(cova,ind,admix,out,PCs,onlyTables=F) {
         return()
     }
     ## extracts chosen PCs
-    PC_12 <- round(as.numeric(E$values/sum(E$values))[PCs],3)*100
+    pc_var <- round(as.numeric(E$values/sum(E$values))[PCs],3)*100
     a <- data.frame(E$vectors[,PCs])
     a$pop <- c(ind,'SAMPLE')
-    colnames(a) <- c(paste('PC',1,sep=""),paste('PC',2,sep=""),'pop')
-    pdf(paste0(out,'_PCAplot.pdf'))
+    colnames(a) <- c("PCX","PCY",'pop')
+    pcaPlotFilename <- paste0(out,'_PCAplot.pdf')
+    pdf(pcaPlotFilename)
     par(mar=c(5, 4, 4, 8) + 0.1)
 
     ## this maps pop into some colour number
     pcaColours<-sapply(a$pop[1:(nrow(a)-1)], function(x) cols[ cols$pop==x,"col"])
     
-    plot(a$PC1[1:(nrow(a)-1)],a$PC2[1:(nrow(a)-1)],xlab=paste('PC',PCs[1],' (%)',PC_12[PCs[1]]),ylab=paste('PC',PCs[2],' (%)',PC_12[2]),col=pcaColours,pch=16,ylim=c(min(a$PC2),max(a$PC2)),xlim=c(min(a$PC1),max(a$PC1)))
-    points(a$PC1[nrow(a)],a$PC2[nrow(a)],pch=4,cex=2,lwd=4)
+    plot(a$PCX[1:(nrow(a)-1)],a$PCY[1:(nrow(a)-1)],xlab=paste('PC',PCs[1],' (%)',pc_var[1]),ylab=paste('PC',PCs[2],' (%)',pc_var[2]),col=pcaColours,pch=16,ylim=c(min(a$PCY),max(a$PCY)),xlim=c(min(a$PCX),max(a$PCX)))
+    points(a$PCX[nrow(a)],a$PCY[nrow(a)],pch=4,cex=2,lwd=4)
     print("Input individual ('SAMPLE') is plotted at in PCA plot:")
-    print(paste(a$PC1[nrow(a)],a$PC2[nrow(a)]))
+    print(paste(a$PCX[nrow(a)],a$PCY[nrow(a)]))
     par(xpd=TRUE)
     legend("topright",inset=c(-0.3,0),legend=unique(a$pop[1:(nrow(a)-1)]),fill=unique(pcaColours))
     if(dev.cur() > 1) garbage<-grDevices::dev.off()
+    return(pcaPlotFilename)
 }
 
 fL<-filterSites(pl,likes=likes,plinkFile=plinkFile,refpops=refpops,out=out,ref=ref)
@@ -456,7 +467,16 @@ pop_list<- estimateAdmixPCA(admix=admix,refpops=refpops,out=out,genoFilter=fL$ge
 write.table(pop_list$covar, file=paste0(out,'_covar.txt'),quote=F)
 write.table(cbind(rownames(pop_list$covar),c(pop_list$ind,"SAMPLE")), file=paste0(out,'_indi.txt'),quote=F,col=F,row=F)
 
-PCAplotV2(pop_list$covar,pop_list$indi,admix=admix,out,PCs=sort(as.numeric(unlist(strsplit(PCs,",")))),onlyTables=(doPlots=="0"))
+selectedPCs <- sort(as.numeric(unlist(strsplit(PCs,","))))
+pcaPlotFilename <- PCAplotV2(pop_list$covar,pop_list$indi,admix=admix,out,PCs=selectedPCs,onlyTables=(doPlots=="0"))
+
+cat("Output files:\n")
+cat(" -", paste0(out,'_covar.txt'), "\n")
+cat(" -", paste0(out,'_indi.txt'), "\n")
+cat(" -", paste0(out,'_eigenvecs.txt'), "\n")
+cat(" -", paste0(out,'_eigenvals.txt'), "\n")
 if(doPlots=="1"){
-    generateBarplot(admix=admix,sorting = unique(pop_list$ind),out = out)    
+    admixBarplotFilename <- generateBarplot(admix=admix,sorting = unique(pop_list$ind),out = out)
+    cat(" -", admixBarplotFilename, "\n")
+    cat(" -", pcaPlotFilename, "\n")
 }

@@ -19,11 +19,31 @@ From the repository root:
 make
 ```
 
+<details>
+<summary>Example output</summary>
+
+```text
+g++ src/fastNGSadmix.cpp src/readplinkV3.cpp -O3 -lz -o fastNGSadmix
+```
+
+</details>
+
 If you want to run the PCA examples, install the R package used by the scripts:
 
 ```r
 install.packages("BEDMatrix")
 ```
+
+<details>
+<summary>Example output</summary>
+
+```text
+Installing package into "/path/to/R/library"
+...
+* DONE (BEDMatrix)
+```
+
+</details>
 
 ## 2. Download the example archives into `data/`
 
@@ -36,6 +56,22 @@ wget -P data https://www.popgen.dk/software/download/fastNGSadmix/example.tar.gz
 tar -xzf data/data.tar.gz
 tar -xzf data/example.tar.gz
 ```
+
+<details>
+<summary>Example output</summary>
+
+```text
+data/data.tar.gz
+data/example.tar.gz
+data/refPanel_humanOrigins_7worldPops.txt
+data/nInd_humanOrigins_7worldPops.txt
+example/yriFrenchHan_depth05.beagle.gz
+example/NA20502_TSI.bed
+example/NA20502_TSI.bim
+example/NA20502_TSI.fam
+```
+
+</details>
 
 The downloaded archives are stored in `data/`, while unpacking from the
 repository root creates the working directories `data/` and `example/`.
@@ -51,11 +87,36 @@ REF=data/refPanel_humanOrigins_7worldPops.txt
 NIND=data/nInd_humanOrigins_7worldPops.txt
 ```
 
+<details>
+<summary>Example output</summary>
+
+```text
+(no terminal output)
+```
+
+</details>
+
 Estimate admixture proportions:
 
 ```bash
 ./fastNGSadmix -likes "$GL" -fname "$REF" -Nname "$NIND" -out results/yriFrenchHan_depth05 -whichPops French,Han,Yoruba
 ```
+
+<details>
+<summary>Example output</summary>
+
+```text
+-> Dumping file: results/yriFrenchHan_depth05.log
+Input: -likes example/yriFrenchHan_depth05.beagle.gz -plink (null) -Nname data/nInd_humanOrigins_7worldPops.txt -fname data/refPanel_humanOrigins_7worldPops.txt -out results/yriFrenchHan_depth05 -whichPops French,Han,Yoruba
+Overlap: of 95913 sites between input and ref
+Chosen pop French
+Chosen pop Han
+Chosen pop Yoruba
+Estimated  Q = 0.695856 0.235121 0.069023 best like -97538.374384 after 0 runs!
+-> Dumping file: results/yriFrenchHan_depth05.qopt
+```
+
+</details>
 
 This writes:
 
@@ -67,6 +128,26 @@ Run PCA using the estimated admixture proportions:
 ```bash
 Rscript R/fastNGSadmixPCA.R -likes "$GL" -qopt results/yriFrenchHan_depth05.qopt -out results/yriFrenchHan_depth05 -ref data/humanOrigins_7worldPops
 ```
+
+<details>
+<summary>Example output</summary>
+
+```text
+Reference populations used: French, Han, Yoruba
+Calculating covarinace matrix for reference individuals
+Calculating covarinace matrix for input individual
+Input individual ('SAMPLE') is plotted at in PCA plot:
+-0.0564757832664593 -0.0896450779920364
+Output files:
+ - results/yriFrenchHan_depth05_covar.txt
+ - results/yriFrenchHan_depth05_indi.txt
+ - results/yriFrenchHan_depth05_eigenvecs.txt
+ - results/yriFrenchHan_depth05_eigenvals.txt
+ - results/yriFrenchHan_depth05_admixBarplot.png
+ - results/yriFrenchHan_depth05_PCAplot.pdf
+```
+
+</details>
 
 Generated example outputs from the BEDMatrix-backed test run in this repo:
 
@@ -88,11 +169,36 @@ Set the PLINK input prefix:
 PLINKFILE=example/NA20502_TSI
 ```
 
+<details>
+<summary>Example output</summary>
+
+```text
+(no terminal output)
+```
+
+</details>
+
 Estimate admixture proportions:
 
 ```bash
 ./fastNGSadmix -plink "$PLINKFILE" -fname "$REF" -Nname "$NIND" -out results/NA20502_TSI -whichPops French,Han,Yoruba
 ```
+
+<details>
+<summary>Example output</summary>
+
+```text
+-> Dumping file: results/NA20502_TSI.log
+Input: -likes (null) -plink example/NA20502_TSI -Nname data/nInd_humanOrigins_7worldPops.txt -fname data/refPanel_humanOrigins_7worldPops.txt -out results/NA20502_TSI -whichPops French,Han,Yoruba
+Overlap: of 441695 sites between input and ref
+Chosen pop French
+Chosen pop Han
+Chosen pop Yoruba
+Estimated  Q = 0.999980 0.000010 0.000010 best like -304267.935981 after 0 runs!
+-> Dumping file: results/NA20502_TSI.qopt
+```
+
+</details>
 
 This writes:
 
@@ -104,6 +210,26 @@ Run PCA:
 ```bash
 Rscript R/fastNGSadmixPCA.R -plinkFile "$PLINKFILE" -qopt results/NA20502_TSI.qopt -out results/NA20502_TSI -ref data/humanOrigins_7worldPops
 ```
+
+<details>
+<summary>Example output</summary>
+
+```text
+Reference populations used: French, Han, Yoruba
+Calculating covarinace matrix for reference individuals
+Calculating covarinace matrix for input individual
+Input individual ('SAMPLE') is plotted at in PCA plot:
+-0.073125439191265 -0.15687235137774
+Output files:
+ - results/NA20502_TSI_covar.txt
+ - results/NA20502_TSI_indi.txt
+ - results/NA20502_TSI_eigenvecs.txt
+ - results/NA20502_TSI_eigenvals.txt
+ - results/NA20502_TSI_admixBarplot.png
+ - results/NA20502_TSI_PCAplot.pdf
+```
+
+</details>
 
 Generated example outputs from the BEDMatrix-backed test run in this repo:
 
@@ -127,6 +253,20 @@ run that workflow:
 wget -P data https://www.popgen.dk/software/download/fastNGSadmix/data1000genomes.tar.gz
 tar -xzf data/data1000genomes.tar.gz
 ```
+
+<details>
+<summary>Example output</summary>
+
+```text
+data/data1000genomes.tar.gz
+data1000genomes/refPanel_1000genomesRefPanel.txt
+data1000genomes/nInd_1000genomesRefPanel.txt
+data1000genomes/1000genomesRefPanel.bed
+data1000genomes/1000genomesRefPanel.bim
+data1000genomes/1000genomesRefPanel.fam
+```
+
+</details>
 
 The website quick start uses:
 
