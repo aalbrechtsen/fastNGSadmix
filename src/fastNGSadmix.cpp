@@ -10,17 +10,17 @@
   (at your option) any later version. For more see LICENSE file.
 
   log:
-  g++ fastNGSadmix.cpp -lz -O3 -o fastNGSadmix
+  g++ src/fastNGSadmix.cpp -lz -O3 -o fastNGSadmix
 
   log: (with readplink function)
-  g++ fastNGSadmix.cpp readplinkV3.cpp -lz -O3 -o fastNGSadmix
+  g++ src/fastNGSadmix.cpp src/readplinkV3.cpp -lz -O3 -o fastNGSadmix
 
 
   debug:
-  g++ fastNGSadmix.cpp -lz -ggdb -O3 -o fastNGSadmix
+  g++ src/fastNGSadmix.cpp -lz -ggdb -O3 -o fastNGSadmix
 
   debug: (with readplink function)
-  g++ fastNGSadmix.cpp readplinkV3.cpp -lz -ggdb -O3 -o fastNGSadmix
+  g++ src/fastNGSadmix.cpp src/readplinkV3.cpp -lz -ggdb -O3 -o fastNGSadmix
 
 */
 
@@ -1973,4 +1973,3 @@ void info(){
   return 0;
     
  }
-

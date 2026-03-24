@@ -10,11 +10,11 @@
   (at your option) any later version. For more see LICENSE file.
 
   log:
-  g++ readplinkV3.cpp -lz -lpthread  -O3 -o readplinkV3
+  g++ src/readplinkV3.cpp -lz -lpthread  -O3 -o readplinkV3
 
 
   debug:
-  g++ readplinkV3.cpp -lz -lpthread -ggdb -O3 -o readplinkV3
+  g++ src/readplinkV3.cpp -lz -lpthread -ggdb -O3 -o readplinkV3
 
 
 */

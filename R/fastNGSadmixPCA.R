@@ -129,15 +129,40 @@ if(length(args)==0){
 ###################################
 
 
-if(!require(snpStats)){
-    print("You must install the R package: 'snpStats'")
-    if(as.numeric(multiCores) > 1 & !require(parallel)){
-        print("You must install the R packages: 'parallel' and 'snpStats'")
-    }
+if(!requireNamespace("BEDMatrix", quietly = TRUE)){
+    print("You must install the R package: 'BEDMatrix'")
+    q("no", status = 1)
 }
 
-## for reading plink files using snpStats
-pl<-snpStats::read.plink(ref)
+if(as.numeric(multiCores) > 1 && !requireNamespace("parallel", quietly = TRUE)){
+    print("You must install the R package: 'parallel'")
+    q("no", status = 1)
+}
+
+read_plink_bedmatrix <- function(prefix) {
+    fam <- read.table(paste0(prefix, ".fam"), as.is = TRUE)
+    bim <- read.table(paste0(prefix, ".bim"), as.is = TRUE)
+    colnames(fam) <- c("family", "individual", "paternal", "maternal", "sex", "phenotype")
+    colnames(bim) <- c("chromosome", "snp.name", "genetic.distance", "position", "allele.1", "allele.2")
+
+    geno <- BEDMatrix::BEDMatrix(prefix, simple_names = TRUE)
+    rownames(geno) <- fam$individual
+    colnames(geno) <- bim$snp.name
+
+    list(
+        fam = fam,
+        map = bim,
+        bim = bim,
+        genotypes = geno
+    )
+}
+
+to_numeric_matrix <- function(x) {
+    as.matrix(x)
+}
+
+## for reading plink files using BEDMatrix
+pl<-read_plink_bedmatrix(ref)
 
 if(withChr=="1"){
     pl$map$chromosome<-paste0("chr",pl$map$chromosome)
@@ -220,12 +245,13 @@ filterSites<-function(pl,likes=NULL,plinkFile=NULL,refpops,out,ref){
     ## if plink files reads and convert to beagle file
     if(plinkFile!=""){
 
-        plInput<-snpStats::read.plink(plinkFile)        
+        plInput<-read_plink_bedmatrix(plinkFile)
         GL.raw<-cbind(paste(plInput$map$chromosome,plInput$map$position,sep="_"),plInput$map$allele.2,plInput$map$allele.1,0,0,0)
-        GL.raw[ which(plInput$geno[1,]==3),4]<-1
-        GL.raw[ which(plInput$geno[1,]==2),5]<-1
-        GL.raw[ which(plInput$geno[1,]==1),6]<-1
-        GL.raw<-GL.raw[ which(!is.na(plInput$geno[1,])),]
+        plink_dosage <- as.numeric(to_numeric_matrix(plInput$genotypes[1,,drop=FALSE]))
+        GL.raw[ which(plink_dosage==0),4]<-1
+        GL.raw[ which(plink_dosage==1),5]<-1
+        GL.raw[ which(plink_dosage==2),6]<-1
+        GL.raw<-GL.raw[ which(!is.na(plink_dosage)),]
         GL.raw2<-as.data.frame(GL.raw,stringsAsFactors=F)
         colnames(GL.raw2)<-c("marker", "allele1", "allele2", "Ind0", "Ind0.1", "Ind0.2")
                 
@@ -237,7 +263,7 @@ filterSites<-function(pl,likes=NULL,plinkFile=NULL,refpops,out,ref){
         stop()
     }
 
-    if(any(duplicated(paste(pl$bim[,1],pl$bim[,4],sep="_")))){    
+    if(any(duplicated(paste(pl$map[,1],pl$map[,4],sep="_")))){    
         print("Duplicate markers in reference panel genotypes - fix this!")
         stop()
     }
@@ -261,20 +287,20 @@ filterSites<-function(pl,likes=NULL,plinkFile=NULL,refpops,out,ref){
     ## calculating covariance matrix for reference data
     covarFilename<-paste0(out1,"/",ref1,paste0(refpops,collapse=""),".Rdata")
     if(!file.exists(covarFilename)){       
-        genoFilter<-pl$genotypes[ pl$fam[ pl$fam[,1]%in%refpops,2],]
+        genoFilter<-pl$genotypes[ pl$fam[ pl$fam[,1]%in%refpops,2],,drop=FALSE]
         if(overlapRef=="1"){
             print(paste0("Only using overlap of markers for ref genos - cannot save covariance matrix!"))
             keep<-paste(pl$map[,1],pl$map[,4],sep="_")%in%GL.raw2[,1]
-            genoFilter<-genoFilter[ ,keep]            
+            genoFilter<-genoFilter[ ,keep,drop=FALSE]
         }
         
         ## first PCA for ref pops based on all SNPs
 
-        my <- colMeans(as(genoFilter,"numeric"),na.rm=T)
+        genoFilterNumeric <- to_numeric_matrix(genoFilter)
+        my <- colMeans(genoFilterNumeric,na.rm=T)
         freq<-my/2            
         keep<-freq>0 & freq < 1
-        ## convert from snpStats object to matrix
-        genoFilter<- as(genoFilter[,keep],"numeric")
+        genoFilter<- genoFilterNumeric[,keep,drop=FALSE]
         freq<-freq[keep]
         my<-my[keep]        
         
@@ -304,7 +330,7 @@ filterSites<-function(pl,likes=NULL,plinkFile=NULL,refpops,out,ref){
     
     GL.raw2<-GL.raw2[ GL.raw2[,1]%in%overlap,]
     bim2<-pl$map[ paste(pl$map$chromosome,pl$map$position,sep="_")%in%overlap,]
-    genoFilter<-pl$genotypes[ ,colnames(pl$genotypes)%in%bim2[,2]]
+    genoFilter<-pl$genotypes[ ,colnames(pl$genotypes)%in%bim2[,2],drop=FALSE]
 
     ## makes sure beagle or plinkFile input file ordered as reference genotypes
     GL.raw2<-GL.raw2[order(match(GL.raw2[,1],paste(bim2[,1],bim2[,4],sep="_"))),]
@@ -317,7 +343,7 @@ filterSites<-function(pl,likes=NULL,plinkFile=NULL,refpops,out,ref){
      
     ## those were alleles agree should be flipped like for refPanel, so all genotypes point in same direction
     flip<-GL.raw2[,2]==bim2[,6] & GL.raw2[,3]==bim2[,5]
-    genoFilter<-as(genoFilter[ pl$fam[  pl$fam[,1]%in%refpops,2],],"numeric")
+    genoFilter<-to_numeric_matrix(genoFilter[ pl$fam[  pl$fam[,1]%in%refpops,2],,drop=FALSE])
     ## hereby only constructing ref panel of individuals/pops in admix file
     popFreqs<-sapply(colnames(admix), function(x) colMeans(genoFilter[pl$fam[ pl$fam[,1]==x,2],],na.rm=T)/2)
     popFreqs<-popFreqs[,match(colnames(popFreqs),colnames(admix))]
@@ -372,7 +398,7 @@ estimateAdmixPCA<-function(admix,refpops,out,genoFilter,flip,GL.raw2,popFreqs,X,
     print("Calculating covarinace matrix for input individual")
     print("")
     if(as.numeric(multiCores)>1){
-        GL_called <- unlist(parallel:::mclapply(colnames(genoFilter2),glfunc,G_mat=G_mat,my2=my2,pre_norm=pre_norm,genoFilter2=genoFilter2,mc.cores=as.numeric(multiCores)))
+        GL_called <- unlist(parallel::mclapply(colnames(genoFilter2),glfunc,G_mat=G_mat,my2=my2,pre_norm=pre_norm,genoFilter2=genoFilter2,mc.cores=as.numeric(multiCores)))
     } else{
         GL_called <- unlist(lapply(colnames(genoFilter2),glfunc,G_mat=G_mat,my2=my2,pre_norm=pre_norm,genoFilter2=genoFilter2))
     }

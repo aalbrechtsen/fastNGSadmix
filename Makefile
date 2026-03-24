@@ -5,15 +5,16 @@ CXX := g++
 
 FLAGS := -O3 -lz
 
-srcfiles := $(shell find -maxdepth 1 -iname "*V3.cpp")
-objects  := $(patsubst %.c, %.o, $(srcfiles))
-hfiles  := $(patsubst %.c, %.h, $(srcfiles))
+SRC_DIR := src
+MAIN_SRC := $(SRC_DIR)/$(appname).cpp
+srcfiles := $(shell find $(SRC_DIR) -maxdepth 1 -iname "*V3.cpp")
+objects  := $(patsubst %.cpp, %.o, $(srcfiles))
+hfiles  := $(patsubst %.cpp, %.h, $(srcfiles))
 
 all: $(appname)
 
-$(appname): $(appname).cpp
-	$(CXX) $(appname).cpp $(srcfiles) $(FLAGS) -o $(appname)
+$(appname): $(MAIN_SRC)
+	$(CXX) $(MAIN_SRC) $(srcfiles) $(FLAGS) -o $(appname)
 
 clean:
 	rm  -f $(objects) $(appname)
-

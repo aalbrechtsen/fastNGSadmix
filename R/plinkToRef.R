@@ -46,9 +46,34 @@ if(grepl("~",plinkFile)){
   print("Migt not work with '~' in path to plink files")
 }
 
-require(snpStats)
+if(!requireNamespace("BEDMatrix", quietly = TRUE)){
+    print("You must install the R package: 'BEDMatrix'")
+    q(status = 1)
+}
 
-pl<-snpStats::read.plink(plinkFile)
+read_plink_bedmatrix <- function(prefix) {
+    fam <- read.table(paste0(prefix, ".fam"), as.is = TRUE)
+    bim <- read.table(paste0(prefix, ".bim"), as.is = TRUE)
+    colnames(fam) <- c("family", "individual", "paternal", "maternal", "sex", "phenotype")
+    colnames(bim) <- c("chromosome", "snp.name", "genetic.distance", "position", "allele.1", "allele.2")
+
+    geno <- BEDMatrix::BEDMatrix(prefix, simple_names = TRUE)
+    rownames(geno) <- fam$individual
+    colnames(geno) <- bim$snp.name
+
+    list(
+        fam = fam,
+        map = bim,
+        bim = bim,
+        genotypes = geno
+    )
+}
+
+to_numeric_matrix <- function(x) {
+    as.matrix(x)
+}
+
+pl<-read_plink_bedmatrix(plinkFile)
 
 
 ## 0 major/major 1 major/minor 2 minor/minor
@@ -56,7 +81,7 @@ pl<-snpStats::read.plink(plinkFile)
 l<-list()
 for(pop in unique(pl$fam[,1])){
     indis<-pl$fam[ pl$fam[,1]%in%pop,2]
-    y<-as(pl$genotypes[indis,],"numeric")
+    y<-to_numeric_matrix(pl$genotypes[indis,,drop=FALSE])
     ## in previous versions of R (before 4.0.0) matrices only had class "matrix", but since 4.0.0, they have class "matrix" "array" - I am trying to incorporate this - 15th Jan 2024
     if(is.vector(y)){
         ## calculates freq from values without NAs
@@ -74,7 +99,7 @@ if(length(args)>2 & rmDups>0){
     ## bim has same number of sites as geno with same ordering
     alleles<-apply(pl$map,1,function(x) paste(sort(x[5:6]),collapse="_"))
     idKeep<-!duplicated(paste0(pl$map[,1],"_",pl$map[,4],"_",alleles))
-    geno<-as(pl$genotypes,"numeric")
+    geno<-to_numeric_matrix(pl$genotypes)
     keep2<-apply(geno,2,function(x) sum(x,na.rm = T)/(2*sum(!is.na(x))) >= maf & sum(x,na.rm = T)/(2*sum(!is.na(x))) <= 1-maf)
     keep<-keep2 & idKeep
     f3<-cbind(id=as.vector(paste(trimws(pl$map[,1][keep]),trimws(pl$map[,4][keep]),sep="_")),chr=pl$map[,1][keep],pos=pl$map[,4][keep],name=pl$map[,2][keep],A0_freq=pl$map[,5][keep],A1=pl$map[,6][keep],f2[keep,])
@@ -101,4 +126,3 @@ sites<-cbind(f3[,2:3],f3[,5:6])
 write.table(f3,paste("refPanel_",name,".txt",sep=""),col=T,row=F,quote=F)
 write.table(nInd,paste("nInd_",name,".txt",sep=""),col=F,row=F,quote=F)
 write.table(sites,paste(name,".sites",sep=""),col=F,row=F,quote=F)
-
