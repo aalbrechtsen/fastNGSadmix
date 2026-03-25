@@ -1,14 +1,14 @@
 # Single-BAM Tutorial
 
-This tutorial starts from a single low-coverage BAM file, extracts genotype
-likelihoods at the sites in the 1000 Genomes reference panel with `ANGSD`, runs
-`fastNGSadmix`, and then uses bootstrap replicates to show uncertainty in the
-estimated admixture proportions.
+This tutorial starts from a single low-coverage BAM file and carries the sample
+through three analysis stages:
 
-The workflow is based on:
+- extract genotype likelihoods at the reference-panel sites with `ANGSD`
+- estimate admixture proportions with `fastNGSadmix`
+- project the sample onto a reference PCA with `PCAone`
 
-- the `fastNGSadmix` exercise from the PopGen course material
-- the 1000 Genomes reference-panel example on the project website
+The same sample is used throughout. The `ANGSD` output beagle file feeds both
+`fastNGSadmix` and the `PCAone --beagle` projection step.
 
 ## 1. Build `fastNGSadmix`
 
@@ -38,6 +38,9 @@ This tutorial uses:
 - reference frequencies: `data1000genomes/refPanel_1000genomesRefPanel.txt`
 - reference population counts: `data1000genomes/nInd_1000genomesRefPanel.txt`
 
+The 1000 Genomes reference panel in this repository contains 120 reference
+samples across six populations: `FIN`, `PEL`, `PJL`, `CEU`, `YRI`, and `CHB`.
+
 ## 3. Set the paths
 
 ```bash
@@ -51,7 +54,8 @@ OUT=results/NA12874_1000G
 
 ## 4. Extract genotype likelihoods with `ANGSD`
 
-Run `ANGSD` only on the SNPs present in the reference panel:
+Run `ANGSD` only on the SNPs present in the reference panel. This keeps the
+likelihoods aligned to the markers used by the reference frequencies:
 
 ```bash
 "$ANGSD" \
@@ -74,7 +78,7 @@ This writes:
 - `results/NA12874_1000G.depthSample`
 - `results/NA12874_1000G.depthGlobal`
 
-The key file for `fastNGSadmix` is `results/NA12874_1000G.beagle.gz`.
+The key file for the downstream analysis is `results/NA12874_1000G.beagle.gz`.
 
 <details>
 <summary>Verified command output</summary>
@@ -109,7 +113,9 @@ This writes:
 - `results/NA12874_1000G.qopt`
 - `results/NA12874_1000G.log`
 
-The main ancestry estimate is in `results/NA12874_1000G.qopt`.
+The main ancestry estimate is in `results/NA12874_1000G.qopt`. The header gives
+the reference-population order, and the data row gives the estimated ancestry
+proportions for the sample.
 
 For the tested example run, the estimated admixture proportions were:
 
@@ -118,14 +124,12 @@ FIN   PEL   PJL   CEU   YRI   CHB
 0.7436 0.0412 0.2152 0.0000 0.0000 0.0000
 ```
 
-To plot the point estimate:
+To plot the point estimate only:
 
 ```bash
 Rscript scripts/plot_single_bam_admix.R \
   results/NA12874_1000G.qopt \
-  results/NA12874_1000G_boot100.qopt \
-  tutorial_figures/NA12874_1000G_admix.png \
-  tutorial_figures/NA12874_1000G_bootstrap.png
+  tutorial_figures/NA12874_1000G_admix.png
 ```
 
 Point estimate:
@@ -155,8 +159,9 @@ Estimated  Q = 0.743590 0.041179 0.215201 0.000010 0.000010 0.000010 best like -
 
 ## 6. Quantify uncertainty with bootstrap
 
-The course exercise recommends bootstrap replicates when working with a single
-sample, especially for low-coverage data. A simple run is:
+Bootstrap replicates are useful here because a single low-coverage sample can
+have substantial uncertainty even when the point estimate looks sharp. A simple
+run is:
 
 ```bash
 ./fastNGSadmix \
@@ -174,13 +179,22 @@ This writes a new result set, including:
 - `results/NA12874_1000G_boot100.log`
 
 The bootstrap run gives replicate-based uncertainty around the admixture
-proportions. Inspect the log together with the `.qopt` output when comparing
-the single-run estimate and the bootstrap-supported result.
+proportions. In `results/NA12874_1000G_boot100.qopt`, the first row is the main
+estimate and the remaining 100 rows are the bootstrap replicates.
 
-The bootstrap file has one point-estimate row followed by 100 bootstrap rows.
+To plot the estimate together with the bootstrap intervals:
 
-The same plotting command above also writes the bootstrap summary figure:
+```bash
+Rscript scripts/plot_single_bam_admix.R \
+  results/NA12874_1000G.qopt \
+  results/NA12874_1000G_boot100.qopt \
+  tutorial_figures/NA12874_1000G_admix.png \
+  tutorial_figures/NA12874_1000G_bootstrap.png
+```
 
+This writes:
+
+- `tutorial_figures/NA12874_1000G_admix.png`
 - `tutorial_figures/NA12874_1000G_bootstrap.png`
 
 Bootstrap uncertainty summary:
@@ -209,7 +223,8 @@ FIRST row of .qopt file is BEST estimated Q, rest are nBoot bootstrapping Qs
 This step requires a `PCAone` binary with `--beagle` support available as
 `./PCAone`.
 
-Run PCA on the same 1000 Genomes reference panel used above:
+Run PCA on the same 1000 Genomes reference panel used above. This defines the
+PC axes that the sample will be projected onto:
 
 ```bash
 mkdir -p results/pcaone_1000g
@@ -229,19 +244,21 @@ This writes:
 <summary>Verified command output</summary>
 
 ```text
-[25/03/2026-08:30:32] start parsing PLINK format
-[25/03/2026-08:30:32] N (# samples): 120, M (# SNPs): 6676750
+[25/03/2026-09:27:28] start parsing PLINK format
+[25/03/2026-09:27:28] N (# samples): 120, M (# SNPs): 6676750
 ...
-[25/03/2026-08:32:19] stops at epoch =  7
-[25/03/2026-08:32:20] save matched sites in .mbim file and permutation mode is  1
-[25/03/2026-08:32:33] eigen vectors and values saved
+[25/03/2026-09:29:16] stops at epoch =  7
+[25/03/2026-09:29:17] save matched sites in .mbim file and permutation mode is  1
+[25/03/2026-09:29:30] eigen vectors and values saved
 ```
 
 </details>
 
 ## 8. Project the BAM-derived beagle file with `PCAone`
 
-Project the exact beagle file produced by `ANGSD` in step 4:
+Project the exact beagle file produced by `ANGSD` in step 4. With the updated
+`PCAone`, this now uses genotype likelihoods directly instead of requiring a
+separate PLINK version of the sample:
 
 ```bash
 ./PCAone \
@@ -258,9 +275,9 @@ This writes:
 - `results/pcaone_1000g/NA12874_from_bam.sigvals`
 - `results/pcaone_1000g/NA12874_from_bam.log`
 
-For the tested run, the projection summary was:
+For the tested run with the updated `PCAone`, the projection summary was:
 
-- overlap: `5181`
+- overlap: `4578`
 - flipped: `0`
 - skipped: `0`
 
@@ -268,17 +285,18 @@ Projected coordinates start with:
 
 ```text
 PC1      PC2      PC3
--0.0271  -0.0782  -0.0357
+0.2509   0.0317   0.1573
 ```
 
 <details>
 <summary>Verified command output</summary>
 
 ```text
-[25/03/2026-08:40:43] start parsing BEAGLE format
-[25/03/2026-08:40:43] N (# samples):  1, M (# SNPs): 5181
-[25/03/2026-08:40:54] projection overlap = 5181, flipped =  0, skipped =  0
-[25/03/2026-08:41:02] eigen vectors and values saved
+[25/03/2026-09:29:50] start parsing BEAGLE format
+[25/03/2026-09:29:50] N (# samples):  1, M (# SNPs): 4578
+[25/03/2026-09:30:01] projection overlap = 4578, flipped =  0, skipped =  0
+[25/03/2026-09:30:09] GL projection iter = 17, diff = 0.000009
+[25/03/2026-09:30:09] eigen vectors and values saved
 ```
 
 </details>
@@ -300,7 +318,7 @@ This writes:
 
 - `tutorial_figures/NA12874_from_bam_pcaone_projection.png`
 
-Projected sample on the 1000G PCA:
+Projected sample on the 1000G PCA. The black `X` marks the BAM-derived sample:
 
 ![PCAone projection for NA12874 from BAM-derived beagle](tutorial_figures/NA12874_from_bam_pcaone_projection.png)
 
@@ -320,7 +338,7 @@ After the workflow finishes, check:
 
 ## 11. Notes
 
-- The BAM-driven workflow here is for genotype likelihoods and admixture
-  estimation with `fastNGSadmix`, plus direct PCA projection from the resulting
-  beagle file when using a `PCAone` build that supports `--beagle`.
+- The BAM-driven workflow here uses genotype likelihoods twice: first for
+  admixture estimation in `fastNGSadmix`, and then for direct projection in
+  `PCAone --beagle`.
 - The exact runtime depends on the machine, `ANGSD` build, and I/O speed.
