@@ -244,12 +244,12 @@ This writes:
 <summary>Verified command output</summary>
 
 ```text
-[25/03/2026-09:27:28] start parsing PLINK format
-[25/03/2026-09:27:28] N (# samples): 120, M (# SNPs): 6676750
+[25/03/2026-12:25:40] start parsing PLINK format
+[25/03/2026-12:25:40] N (# samples): 120, M (# SNPs): 6676750
 ...
-[25/03/2026-09:29:16] stops at epoch =  7
-[25/03/2026-09:29:17] save matched sites in .mbim file and permutation mode is  1
-[25/03/2026-09:29:30] eigen vectors and values saved
+[25/03/2026-12:28:04] stops at epoch =  7
+[25/03/2026-12:28:05] save matched sites in .mbim file and permutation mode is  1
+[25/03/2026-12:28:18] eigen vectors and values saved
 ```
 
 </details>
@@ -285,18 +285,18 @@ Projected coordinates start with:
 
 ```text
 PC1      PC2      PC3
-0.2509   0.0317   0.1573
+0.0143   -0.0110  -0.0434
 ```
 
 <details>
 <summary>Verified command output</summary>
 
 ```text
-[25/03/2026-09:29:50] start parsing BEAGLE format
-[25/03/2026-09:29:50] N (# samples):  1, M (# SNPs): 4578
-[25/03/2026-09:30:01] projection overlap = 4578, flipped =  0, skipped =  0
-[25/03/2026-09:30:09] GL projection iter = 17, diff = 0.000009
-[25/03/2026-09:30:09] eigen vectors and values saved
+[25/03/2026-12:28:30] start parsing BEAGLE format
+[25/03/2026-12:28:30] N (# samples):  1, M (# SNPs): 4578
+[25/03/2026-12:28:44] projection overlap = 4578, flipped =  0, skipped =  0
+[25/03/2026-12:28:52] GL projection iter = 4, diff = 0.000004
+[25/03/2026-12:28:52] eigen vectors and values saved
 ```
 
 </details>
