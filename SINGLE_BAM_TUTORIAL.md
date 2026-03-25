@@ -118,6 +118,20 @@ FIN   PEL   PJL   CEU   YRI   CHB
 0.7436 0.0412 0.2152 0.0000 0.0000 0.0000
 ```
 
+To plot the point estimate:
+
+```bash
+Rscript scripts/plot_single_bam_admix.R \
+  results/NA12874_1000G.qopt \
+  results/NA12874_1000G_boot100.qopt \
+  tutorial_figures/NA12874_1000G_admix.png \
+  tutorial_figures/NA12874_1000G_bootstrap.png
+```
+
+Point estimate:
+
+![Single-BAM fastNGSadmix estimate](tutorial_figures/NA12874_1000G_admix.png)
+
 <details>
 <summary>Verified command output</summary>
 
@@ -164,6 +178,14 @@ proportions. Inspect the log together with the `.qopt` output when comparing
 the single-run estimate and the bootstrap-supported result.
 
 The bootstrap file has one point-estimate row followed by 100 bootstrap rows.
+
+The same plotting command above also writes the bootstrap summary figure:
+
+- `tutorial_figures/NA12874_1000G_bootstrap.png`
+
+Bootstrap uncertainty summary:
+
+![Single-BAM fastNGSadmix bootstrap summary](tutorial_figures/NA12874_1000G_bootstrap.png)
 
 <details>
 <summary>Verified command output</summary>
@@ -282,32 +304,7 @@ Projected sample on the 1000G PCA:
 
 ![PCAone projection for NA12874 from BAM-derived beagle](tutorial_figures/NA12874_from_bam_pcaone_projection.png)
 
-## 10. Plot the main estimate and bootstrap uncertainty
-
-This repository includes a small plotting helper for the single-BAM tutorial:
-
-```bash
-Rscript scripts/plot_single_bam_admix.R \
-  results/NA12874_1000G.qopt \
-  results/NA12874_1000G_boot100.qopt \
-  tutorial_figures/NA12874_1000G_admix.png \
-  tutorial_figures/NA12874_1000G_bootstrap.png
-```
-
-This writes:
-
-- `tutorial_figures/NA12874_1000G_admix.png`
-- `tutorial_figures/NA12874_1000G_bootstrap.png`
-
-Point estimate:
-
-![Single-BAM fastNGSadmix estimate](tutorial_figures/NA12874_1000G_admix.png)
-
-Point estimate with bootstrap intervals:
-
-![Single-BAM fastNGSadmix bootstrap summary](tutorial_figures/NA12874_1000G_bootstrap.png)
-
-## 11. What to inspect
+## 10. What to inspect
 
 After the workflow finishes, check:
 
@@ -321,7 +318,7 @@ After the workflow finishes, check:
 - `tutorial_figures/NA12874_1000G_admix.png` for the point-estimate barplot
 - `tutorial_figures/NA12874_1000G_bootstrap.png` for the bootstrap uncertainty summary
 
-## 12. Notes
+## 11. Notes
 
 - The BAM-driven workflow here is for genotype likelihoods and admixture
   estimation with `fastNGSadmix`, plus direct PCA projection from the resulting
