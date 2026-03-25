@@ -9,7 +9,8 @@ page:
 
 The steps below build the program, download the hosted example data, estimate
 admixture proportions from both genotype likelihoods and a single-individual
-PLINK file, and then run PCA for each case.
+PLINK file, run PCA for each case, and then run a bootstrap example for two
+low-information beagle samples.
 
 ## 1. Build fastNGSadmix
 
@@ -243,48 +244,201 @@ Generated example outputs from the BEDMatrix-backed test run in this repo:
 
 ![PCA plot for NA20502_TSI](tutorial_figures/NA20502_TSI_bedmatrix_PCAplot.png)
 
-## 5. Optional: 1000 Genomes reference panel example
+## 5. Run the sample2 and sample3 bootstrap example
 
-The project page also documents a larger example that uses a BAM file plus a
-1000 Genomes-based reference panel. Download the extra archive if you want to
-run that workflow:
+This example uses the same 7-population human-origins reference panel already
+downloaded in step 2, but with two additional beagle files that contain much
+less information than the earlier examples.
+
+Download the two exercise inputs:
 
 ```bash
-wget -P data https://www.popgen.dk/software/download/fastNGSadmix/data1000genomes.tar.gz
-tar -xzf data/data1000genomes.tar.gz
+wget -P example https://popgen.dk/software/download/fastNGSadmix/sample2.beagle.gz
+wget -P example https://popgen.dk/software/download/fastNGSadmix/sample3.beagle.gz
 ```
 
 <details>
 <summary>Example output</summary>
 
 ```text
-data/data1000genomes.tar.gz
-data1000genomes/refPanel_1000genomesRefPanel.txt
-data1000genomes/nInd_1000genomesRefPanel.txt
-data1000genomes/1000genomesRefPanel.bed
-data1000genomes/1000genomesRefPanel.bim
-data1000genomes/1000genomesRefPanel.fam
+example/sample2.beagle.gz
+example/sample3.beagle.gz
 ```
 
 </details>
 
-The website quick start uses:
+Set the shared inputs:
 
 ```bash
-BAM=example/smallNA12874.mapped.ILLUMINA.bwa.CEU.low_coverage.20130415.bam
-REF=data1000genomes/refPanel_1000genomesRefPanel.txt
-SITES=data1000genomes/1000genomesRefPanel.sites
-NIND=data1000genomes/nInd_1000genomesRefPanel.txt
-GENO=data1000genomes/1000genomesRefPanel
+REF=data/refPanel_humanOrigins_7worldPops.txt
+NIND=data/nInd_humanOrigins_7worldPops.txt
 ```
 
-You first generate genotype likelihoods with ANGSD, then run fastNGSadmix and
-the PCA script on the resulting `.beagle.gz` file.
+### 5.1 Analyse sample2 with the full reference panel
+
+Run the point estimate:
+
+```bash
+./fastNGSadmix \
+  -likes example/sample2.beagle.gz \
+  -fname "$REF" \
+  -Nname "$NIND" \
+  -out results/sample2_allpops \
+  -whichPops all
+```
+
+<details>
+<summary>Example output</summary>
+
+```text
+Overlap: of 20903 sites between input and ref
+Chosen pop French
+Chosen pop Han
+Chosen pop Chukchi
+Chosen pop Karitiana
+Chosen pop Papuan
+Chosen pop Sindhi
+Chosen pop Yoruba
+Estimated  Q = 0.000010 0.000010 0.000010 0.999940 0.000010 0.000010 0.000010 best like -14874.736275 after 0 runs!
+-> Dumping file: results/sample2_allpops.qopt
+```
+
+</details>
+
+This gives a near-complete Karitiana assignment:
+
+```text
+French   Han      Chukchi  Karitiana  Papuan   Sindhi   Yoruba
+0.0000   0.0000   0.0000   0.9999     0.0000   0.0000   0.0000
+```
+
+Run the bootstrap analysis:
+
+```bash
+./fastNGSadmix \
+  -likes example/sample2.beagle.gz \
+  -fname "$REF" \
+  -Nname "$NIND" \
+  -out results/sample2_allpops_boot100 \
+  -whichPops all \
+  -boot 100
+```
+
+<details>
+<summary>Example output</summary>
+
+```text
+The following number of bootstraps have been chosen: 100
+Overlap: of 20903 sites between input and ref
+...
+At this bootstrapping: 100 out of: 100
+CONVERGENCE!
+Estimated  Q = 0.000010 0.000010 0.000010 0.999940 0.000010 0.000010 0.000010 best like -14874.738086 after 0 runs!
+-> Dumping file: results/sample2_allpops_boot100.qopt
+```
+
+</details>
+
+Plot the bootstrap result:
+
+```bash
+Rscript scripts/plot_single_bam_admix.R \
+  results/sample2_allpops.qopt \
+  results/sample2_allpops_boot100.qopt \
+  tutorial_figures/sample2_allpops_admix.png \
+  tutorial_figures/sample2_allpops_bootstrap.png
+```
+
+![Bootstrap summary for sample2](tutorial_figures/sample2_allpops_bootstrap.png)
+
+### 5.2 Analyse sample3 with the full reference panel
+
+Run the point estimate:
+
+```bash
+./fastNGSadmix \
+  -likes example/sample3.beagle.gz \
+  -fname "$REF" \
+  -Nname "$NIND" \
+  -out results/sample3_allpops \
+  -whichPops all
+```
+
+<details>
+<summary>Example output</summary>
+
+```text
+Overlap: of 91 sites between input and ref
+Chosen pop French
+Chosen pop Han
+Chosen pop Chukchi
+Chosen pop Karitiana
+Chosen pop Papuan
+Chosen pop Sindhi
+Chosen pop Yoruba
+Estimated  Q = 0.000010 0.000010 0.000010 0.999940 0.000010 0.000010 0.000010 best like -66.756446 after 0 runs!
+-> Dumping file: results/sample3_allpops.qopt
+```
+
+</details>
+
+The point estimate is again almost entirely Karitiana, but it is based on only
+91 overlapping sites:
+
+```text
+French   Han      Chukchi  Karitiana  Papuan   Sindhi   Yoruba
+0.0000   0.0000   0.0000   0.9999     0.0000   0.0000   0.0000
+```
+
+Run the bootstrap analysis:
+
+```bash
+./fastNGSadmix \
+  -likes example/sample3.beagle.gz \
+  -fname "$REF" \
+  -Nname "$NIND" \
+  -out results/sample3_allpops_boot100 \
+  -whichPops all \
+  -boot 100
+```
+
+<details>
+<summary>Example output</summary>
+
+```text
+The following number of bootstraps have been chosen: 100
+Overlap: of 91 sites between input and ref
+...
+At this bootstrapping: 100 out of: 100
+CONVERGENCE!
+Estimated  Q = 0.000010 0.000010 0.000010 0.999940 0.000010 0.000010 0.000010 best like -66.756359 after 0 runs!
+-> Dumping file: results/sample3_allpops_boot100.qopt
+```
+
+</details>
+
+Plot the bootstrap result:
+
+```bash
+Rscript scripts/plot_single_bam_admix.R \
+  results/sample3_allpops.qopt \
+  results/sample3_allpops_boot100.qopt \
+  tutorial_figures/sample3_allpops_admix.png \
+  tutorial_figures/sample3_allpops_bootstrap.png
+```
+
+![Bootstrap summary for sample3](tutorial_figures/sample3_allpops_bootstrap.png)
+
+The contrast between the two bootstrap plots is the main point of this example:
+`sample2` is based on enough sites that the Karitiana assignment is effectively
+stable, while `sample3` has so little overlap that the confidence interval is
+much wider even though the point estimate looks the same.
 
 ## 6. Notes
 
-- The example commands above are taken from the project website and adapted to
-  run from the repository root with archives stored under `data/`.
+- All commands above are written to run from the repository root with downloaded
+  archives stored under `data/` and downloaded beagle inputs stored under
+  `example/`.
 - The PCA steps can use substantial RAM, especially with larger reference
   panels.
 - Running `./fastNGSadmix` with no arguments prints the full option list.
